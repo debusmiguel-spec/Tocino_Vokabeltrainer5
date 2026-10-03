@@ -1,0 +1,1 @@
+Fix: Verbformen/Konjugationen werden ausschließlich bei Wortart Verb angezeigt. Alle 5 Dateien in GitHub ersetzen.

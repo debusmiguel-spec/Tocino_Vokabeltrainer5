@@ -1,0 +1,884 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#172033"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Vokabeltrainer"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon.svg" type="image/svg+xml"><title>Vokabeltrainer V2</title>
+<style>
+:root{--b:#2563eb;--g:#15803d;--r:#c62828;--ink:#172033;--mut:#64748b;--line:#dbe3ed}*{box-sizing:border-box}body{margin:0;font-family:Segoe UI,Arial;background:#eef3f8;color:var(--ink)}header{background:#172033;color:white;padding:20px 28px}header h1{margin:0}.wrap{max-width:1100px;margin:auto;padding:26px}.hidden{display:none!important}.panel,.tile{background:white;border:1px solid var(--line);border-radius:18px;box-shadow:0 7px 22px #0f172a10}.panel{padding:25px}.menu{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.tile{padding:24px;text-align:left;cursor:pointer}.tile:hover{transform:translateY(-2px)}.tile b{display:block;font-size:19px;margin:9px 0}.icon{font-size:38px}.mut{color:var(--mut)}button{border:0;border-radius:11px;padding:12px 15px;font-weight:700;cursor:pointer}.primary{background:var(--b);color:white}.secondary{background:#e2e8f0}.danger{background:#fee2e2;color:#991b1b}.good{background:#dcfce7;color:#166534}.back{margin-right:12px}.top{display:flex;align-items:center;margin-bottom:18px}.top h2{margin:0}label{display:block;font-weight:700;margin:13px 0 6px}input,select{width:100%;padding:13px;border:1px solid #cbd5e1;border-radius:10px;font-size:16px}.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:13px}.row>*{flex:1}.question{text-align:center;font-size:42px;font-weight:800;margin:25px}.pic{display:block;max-width:280px;max-height:190px;object-fit:contain;margin:12px auto;border-radius:12px}.result{text-align:center;margin-top:18px}.smiley{font-size:120px;line-height:1}.result h2{font-size:34px;margin:8px}.right{color:var(--g)}.wrong{color:var(--r)}.options{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.options button{background:#eff6ff;color:#1e40af}.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}.stat{background:white;border:1px solid var(--line);border-radius:15px;padding:18px;text-align:left;cursor:pointer}.stat span{font-size:27px}.stat strong{display:block;font-size:28px;margin:7px 0}.item{display:grid;grid-template-columns:1fr auto;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}.card{min-height:310px;border:1px solid var(--line);border-radius:18px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;cursor:pointer}.card h3{font-size:40px}.homeTitle{text-align:center;margin-bottom:25px}.homeTitle h2{font-size:30px;margin-bottom:5px}@media(max-width:800px){.menu{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr}.options{grid-template-columns:1fr}}
+.modal{position:fixed;inset:0;background:#0f172a99;z-index:999;display:flex;align-items:center;justify-content:center;padding:20px}.modalbox{background:white;border-radius:18px;padding:24px;width:min(720px,100%);max-height:92vh;overflow:auto}
+.meaningRow{display:flex;gap:8px;align-items:center;margin-top:8px}.meaningRow input{flex:1}.meaningRow button{flex:0 0 auto}
+
+.v3home{max-width:980px;margin:0 auto}
+.v3menu{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.v3menu .tile{min-height:145px}
+.v3filter{margin-top:24px;background:white;border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:0 7px 22px #0f172a10}
+.v3counts{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0 20px}
+.v3count{border:1px solid var(--line);border-radius:15px;padding:17px;background:#f8fafc}
+.v3count strong{display:block;font-size:30px;margin-top:5px}
+.v3filters{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:800px){.v3menu{grid-template-columns:1fr 1fr}.v3filters{grid-template-columns:1fr}}
+
+/* Startseiten-Animationen */
+@keyframes homeFadeUp{
+ from{opacity:0;transform:translateY(18px)}
+ to{opacity:1;transform:translateY(0)}
+}
+@keyframes iconFloat{
+ 0%,100%{transform:translateY(0)}
+ 50%{transform:translateY(-5px)}
+}
+@keyframes softPulse{
+ 0%,100%{transform:scale(1)}
+ 50%{transform:scale(1.035)}
+}
+.v3home .homeTitle{animation:homeFadeUp .45s ease both}
+.v3menu .tile{
+ position:relative;overflow:hidden;
+ transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease;
+ animation:homeFadeUp .5s ease both
+}
+.v3menu .tile:nth-child(1){animation-delay:.05s}
+.v3menu .tile:nth-child(2){animation-delay:.10s}
+.v3menu .tile:nth-child(3){animation-delay:.15s}
+.v3menu .tile:nth-child(4){animation-delay:.20s}
+.v3menu .tile:nth-child(5){animation-delay:.25s}
+.v3menu .tile:hover{
+ transform:translateY(-7px);
+ box-shadow:0 16px 32px #0f172a22;
+ border-color:#93c5fd
+}
+.v3menu .tile:active{transform:translateY(-2px) scale(.99)}
+.v3menu .tile .icon{transition:transform .2s ease}
+.v3menu .tile:hover .icon{animation:iconFloat .8s ease infinite}
+.v3menu .tile::after{
+ content:"";position:absolute;width:90px;height:90px;border-radius:50%;
+ right:-42px;top:-42px;background:#dbeafe;opacity:.45;
+ transition:transform .3s ease
+}
+.v3menu .tile:hover::after{transform:scale(1.35)}
+.v3filter{animation:homeFadeUp .55s .28s ease both}
+.v3count{
+ transition:transform .2s ease,box-shadow .2s ease;
+}
+.v3count:hover{transform:translateY(-3px);box-shadow:0 9px 20px #0f172a14}
+.v3count strong{animation:softPulse 1.8s ease-in-out infinite}
+.v3filter .primary{transition:transform .18s ease,box-shadow .18s ease}
+.v3filter .primary:hover{transform:translateY(-2px);box-shadow:0 8px 18px #2563eb33}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+
+/* Türkis nur als Akzent / Hingucker */
+:root{--turquoise:#14b8a6;--turquoise-dark:#0f766e;--turquoise-soft:#ccfbf1}
+.v3menu .tile{border-top:3px solid transparent}
+.v3menu .tile:hover{border-top-color:var(--turquoise);border-color:#99f6e4}
+.v3menu .tile::after{background:var(--turquoise-soft)}
+.v3menu .tile:hover b{color:var(--turquoise-dark)}
+.v3menu .tile:nth-child(1) .icon,
+.v3menu .tile:nth-child(3) .icon{filter:saturate(1.15)}
+.v3filter{border-top:4px solid var(--turquoise)}
+.v3filter h2::after{content:"";display:inline-block;width:9px;height:9px;margin-left:9px;border-radius:50%;background:var(--turquoise);vertical-align:middle}
+.v3count:first-child{border-left:5px solid var(--turquoise);background:linear-gradient(90deg,var(--turquoise-soft),#f8fafc 34%)}
+.v3count:first-child strong{color:var(--turquoise-dark)}
+.v3filter .primary{background:linear-gradient(135deg,var(--turquoise),#0d9488)}
+.v3filter .primary:hover{box-shadow:0 9px 22px #14b8a644}
+select:focus,input:focus{outline:2px solid #5eead4;outline-offset:1px;border-color:var(--turquoise)}
+
+/* Globale Schriftart – überschreibt alle bisherigen Regeln */
+
+
+textarea{width:100%;min-height:110px;padding:13px;border:1px solid #cbd5e1;border-radius:11px;font-size:16px;resize:vertical}
+@media(max-width:700px){#quiz>div>div[style*="grid-template-columns"]{grid-template-columns:1fr!important}}@media(max-width:700px){#gapArea div[style*="grid-template-columns"]{grid-template-columns:1fr!important}}.learningProgress{max-width:760px;margin:14px auto 20px}.learningProgressTrack{height:7px;background:#e5e7eb;border-radius:999px;overflow:hidden}.learningProgressFill{height:100%;width:0;background:#22c55e;border-radius:999px;transition:width .4s ease}
+@media(max-width:700px){
+ body{padding-bottom:env(safe-area-inset-bottom)}
+ header{padding:calc(14px + env(safe-area-inset-top)) 14px 14px}
+ header h1{font-size:19px;line-height:1.25}
+ .wrap{padding:10px}.panel{padding:14px;border-radius:15px}
+ .homeTitle{margin-bottom:16px}.homeTitle h2{font-size:24px}
+ .v3menu,.menu{grid-template-columns:1fr!important;gap:10px}
+ .tile{min-height:0!important;padding:16px}.tile .icon{font-size:32px}
+ .top{align-items:flex-start;gap:8px}.top h2{font-size:21px}
+ input,select,textarea{font-size:16px!important;padding:13px;max-width:100%}
+ button{min-height:46px}.row{flex-direction:column}.row>*{width:100%}
+ .options,.stats,.v3counts,.v3filters{grid-template-columns:1fr!important}
+ .question{font-size:32px;margin:18px 0}
+ .smiley{font-size:90px}.result h2{font-size:28px}
+ .pic{max-width:100%;max-height:210px}
+ .card{min-height:250px;padding:14px}.card h3{font-size:31px}
+ .item{grid-template-columns:1fr!important;gap:9px}
+ .item>div:last-child{display:flex;gap:8px;flex-wrap:wrap}
+ .modalbox{padding:15px;max-height:92vh}
+ #successChartWrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+ #successChart{min-width:650px!important}
+ table{display:block;overflow-x:auto;white-space:nowrap}
+}
+
+html,body,body *,button,input,select,textarea,option{
+  font-family:"Segoe UI",Arial,sans-serif !important;
+}
+
+.conjBox{margin-top:14px;padding:16px;background:#f8fafc;border:1px solid #dbe3ed;border-radius:14px}
+.conjBox h3{margin:0 0 12px}
+.conjGrid{display:grid;grid-template-columns:160px 1fr;gap:8px 12px;align-items:center}
+.conjGrid label{margin:0}
+@media(max-width:700px){.conjGrid{grid-template-columns:1fr!important}.conjGrid label{margin-top:6px}}
+
+.allVerbForms{margin:14px auto;max-width:720px;background:#f8fafc;border:1px solid #e2e8f0;padding:18px;border-radius:14px;text-align:left}
+.allVerbForms h3{text-align:center;margin:0 0 8px}
+.verbResultGrid{display:grid;grid-template-columns:minmax(120px,180px) 1fr;gap:7px 14px;max-width:620px;margin:auto}
+@media(max-width:520px){
+ .allVerbForms{padding:14px}
+ .verbResultGrid{grid-template-columns:1fr 1fr;gap:7px 10px}
+}
+
+.allVerbForms{margin:16px auto;max-width:720px;background:#f8fafc;border:1px solid #e2e8f0;padding:18px;border-radius:14px;text-align:left}
+.allVerbForms>h3{text-align:center;margin:0 0 12px}
+.verbTense{margin-top:18px}.verbTense h4{margin:0 0 9px}
+.verbResultGrid{display:grid;grid-template-columns:minmax(120px,180px) 1fr;gap:7px 14px}
+.verbPerson{color:#64748b}.verbForm{color:#172033}
+@media(max-width:520px){.allVerbForms{padding:14px}.verbResultGrid{grid-template-columns:1fr 1fr;gap:7px 10px}}
+.veT{padding:14px;margin-top:14px;background:#f8fafc;border-radius:12px}.veG,.vfG{display:grid;grid-template-columns:160px 1fr;gap:7px 12px}@media(max-width:600px){.veG,.vfG{grid-template-columns:1fr 1fr}}.vfAll{margin:14px auto;padding:16px;max-width:700px;background:#f8fafc;border-radius:14px}</style><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script></head><body><header><h1>🇬🇧 Englisch Vokabeltrainer V2 <small style="font-size:14px;color:#cbd5e1">PC-Test</small></h1></header><div class="wrap">
+<section id="home">
+<div class="v3home">
+ <div class="homeTitle"><h2>Was möchtest du machen?</h2><div class="mut">Wähle eine Funktion aus.</div></div>
+ <div class="v3menu">
+  <div class="tile" onclick="app.open('learn')"><div class="icon">🎓</div><b>Vokabeln lernen</b><span class="mut">Neue Vokabeln lernen</span></div>
+  <div class="tile" onclick="app.open('cards')"><div class="icon">🃏</div><b>Karteikarten</b><span class="mut">Wörter wiederholen</span></div>
+  <div class="tile" onclick="app.open('add')"><div class="icon">➕</div><b>Vokabel hinzufügen</b><span class="mut">Neue Wörter speichern</span></div>
+  <div class="tile" onclick="app.open('import')"><div class="icon">📥</div><b>Importieren & Exportieren</b><span class="mut">Vokabellisten verwalten</span></div>
+  <div class="tile" onclick="app.open('stats')"><div class="icon">📊</div><b>Lernstatistik</b><span class="mut">Ergebnisse ansehen</span></div>
+   <div class="tile" onclick="app.openVocabularyBrowser()"><div class="icon">📚</div><b>Vokabeln anzeigen</b><span class="mut">Lernabschnitte und Wortarten filtern</span></div>
+<div class="tile" onclick="app.openGapSentences()"><div class="icon">✍️</div><b>Lückensätze</b><span class="mut">Englische Beispielsätze ergänzen</span></div></div>
+ 
+</div>
+</section>
+<section id="learn" class="panel hidden"><div class="top"><button class="secondary back" onclick="app.home()">← Startseite</button><h2>🎓 Lernen</h2></div><div id="emptyLearn" class="mut">Noch keine Vokabeln. Füge zuerst Wörter hinzu.</div><div id="quiz" class="hidden"><select id="dir"><option value="de-en">Deutsch → Englisch</option><option value="en-de">Englisch → Deutsch</option></select><div class="learningProgress"><div class="learningProgressTrack"><div id="learningProgressFill" class="learningProgressFill"></div></div></div><img id="qimg" class="pic hidden"><div id="progress" class="mut" style="text-align:center;margin-top:16px;font-weight:700"></div><div id="q" class="question"></div><input id="ans" placeholder="Antwort eingeben …"><label>📝 Eigene Notizen / Besonderheiten</label>
+<textarea id="editNotes" placeholder="Eigene Notizen oder Besonderheiten …"></textarea>
+<div class="row"><button class="primary" onclick="app.check()">Antwort prüfen</button><button class="secondary" onclick="app.speak()">🔊 Anhören</button></div><div id="result"></div></div></section>
+<section id="cards" class="panel hidden"><div class="top"><button class="secondary back" onclick="app.home()">← Startseite</button><h2>🃏 Karteikarten</h2></div><div class="card" onclick="app.flip()"><img id="cimg" class="pic hidden"><div id="cside" class="mut"></div><h3 id="ctext">Keine Vokabeln</h3></div><div class="row"><button class="danger" onclick="app.rate(false)">😢 Nicht gewusst</button><button class="secondary" onclick="app.speakCard()">🔊 Anhören</button><button class="good" onclick="app.rate(true)">😊 Gewusst</button></div></section>
+<section id="add" class="panel hidden"><div class="top"><button class="secondary back" onclick="app.home()">← Startseite</button><h2>➕ Vokabel hinzufügen</h2></div><form id="form"><label>Englisch</label><input id="en" required><label>Deutsch</label><input id="de" required><div id="primaryPluralBox" class="hidden"><label>Plural zu dieser Bedeutung</label><input id="primaryPlural" placeholder="z. B. Häuser"></div><div id="extraMeanings"></div>
+<button type="button" class="secondary" style="margin-top:9px" onclick="app.addMeaningField()">＋ Weitere Bedeutung hinzufügen</button><label>Wortart</label><select id="wordType" onchange="document.getElementById('nounFields').classList.toggle('hidden',this.value!=='noun');document.getElementById('primaryPluralBox').classList.toggle('hidden',this.value!=='noun');document.getElementById('verbFields').classList.toggle('hidden',this.value!=='verb');app.updatePluralVisibility()">
+<option value="">– auswählen –</option><option value="noun">Nomen (Substantive)</option><option value="verb">Verben</option><option value="adjective">Adjektive</option><option value="pronoun">Pronomen</option><option value="adverb">Adverbien</option><option value="preposition">Präpositionen</option><option value="conjunction">Konjunktionen</option><option value="numeral">Numeralien</option><option value="interjection">Interjektionen</option></select><div id="nounFields" class="hidden" style="margin-top:14px;padding:14px;background:#eff6ff;border-radius:12px"><label style="margin-top:0">Artikel</label><input id="articleField" placeholder="z. B. the"></div>
+<div style="margin:14px 0;padding:14px;background:#ecfeff;border-left:5px solid #14b8a6;border-radius:12px">
+<b>🌐 Beispielsatz automatisch hinzufügen</b>
+<p class="mut" style="margin:6px 0 10px">Die App sucht einen englischen Beispielsatz und fügt die deutsche Übersetzung automatisch ein.</p>
+<button type="button" class="primary" onclick="app.autoExampleSentence()">🌐 Beispielsatz suchen & übersetzen</button>
+<div id="autoExampleMsg" class="mut" style="margin-top:8px"></div>
+</div>
+<label>Beispielsatz Englisch (optional)</label><input id="exampleEn" placeholder="z. B. I go to school every day.">
+<label>Beispielsatz Deutsch (optional)</label><input id="exampleDe" placeholder="z. B. Ich gehe jeden Tag zur Schule.">
+<div id="verbFields" class="hidden"><div style="margin:12px 0;padding:14px;background:#ecfeff;border-left:5px solid #14b8a6;border-radius:12px">
+<b>🌐 Verbkonjugation automatisch ausfüllen</b>
+<p class="mut" style="margin:6px 0 10px">Internetverbindung erforderlich. Bitte die gefundenen Formen vor dem Speichern kontrollieren.</p>
+<button type="button" class="primary" onclick="app.autoConjugateVerb()">🌐 Konjugation automatisch suchen</button>
+<div id="autoVerbMsg" class="mut" style="margin-top:8px"></div>
+</div><div class="conjBox"><h3>Present</h3><div class="conjGrid"><label>I</label><input id="present_i" placeholder="I …"><label>you (Singular)</label><input id="present_youS" placeholder="you (Singular) …"><label>he</label><input id="present_he" placeholder="he …"><label>she</label><input id="present_she" placeholder="she …"><label>it</label><input id="present_it" placeholder="it …"><label>we</label><input id="present_we" placeholder="we …"><label>you (Plural)</label><input id="present_youP" placeholder="you (Plural) …"><label>they</label><input id="present_they" placeholder="they …"></div></div><div class="conjBox"><h3>Simple Past</h3><div class="conjGrid"><label>I</label><input id="past_i" placeholder="I …"><label>you (Singular)</label><input id="past_youS" placeholder="you (Singular) …"><label>he</label><input id="past_he" placeholder="he …"><label>she</label><input id="past_she" placeholder="she …"><label>it</label><input id="past_it" placeholder="it …"><label>we</label><input id="past_we" placeholder="we …"><label>you (Plural)</label><input id="past_youP" placeholder="you (Plural) …"><label>they</label><input id="past_they" placeholder="they …"></div></div><div class="conjBox"><h3>Past Participle</h3><input id="participleForm" placeholder="z. B. gone"></div><div class="conjBox"><h3>Future</h3><div class="conjGrid"><label>I</label><input id="future_i" placeholder="I …"><label>you (Singular)</label><input id="future_youS" placeholder="you (Singular) …"><label>he</label><input id="future_he" placeholder="he …"><label>she</label><input id="future_she" placeholder="she …"><label>it</label><input id="future_it" placeholder="it …"><label>we</label><input id="future_we" placeholder="we …"><label>you (Plural)</label><input id="future_youP" placeholder="you (Plural) …"><label>they</label><input id="future_they" placeholder="they …"></div></div></div>
+<label>📝 Eigene Notizen / Besonderheiten (optional)</label>
+<textarea id="notesField" placeholder="z. B. unregelmäßiges Verb, besondere Verwendung, Merkhilfe oder Verwechslungsgefahr …"></textarea>
+<label>Bild (optional)</label><div class="options"><button type="button" onclick="cam.click()">📷 Foto aufnehmen</button><button type="button" onclick="file.click()">🖼️ Vom PC auswählen</button><button type="button" onclick="urlbox.classList.toggle('hidden')">🌐 Aus dem Internet</button></div><input id="cam" type="file" accept="image/*" capture="environment" class="hidden"><input id="file" type="file" accept="image/*" class="hidden"><div id="urlbox" class="hidden"><label>Bild-URL</label><input id="url" placeholder="https://..."><button type="button" class="secondary" style="margin-top:8px" onclick="app.useUrl()">Bild anzeigen</button></div><img id="preview" class="pic hidden"><button class="primary" style="width:100%;margin-top:15px">Speichern</button></form><p id="msg"></p></section>
+<section id="import" class="panel hidden"><div class="top"><button class="secondary back" onclick="app.home()">← Startseite</button><h2>📥 Vokabeln gesammelt hinzufügen</h2></div>
+<h3>📊 Excel- oder CSV-Datei</h3><p class="mut">Spalte A = Englisch, Spalte B = Deutsch. Unterstützt: .xlsx, .xls und .csv. Vor dem Speichern erscheint eine Vorschau.</p>
+<input id="importFile" type="file" accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv"><button class="primary" style="margin-top:10px" onclick="app.previewImport()">Datei einlesen</button><p id="imsg"></p><div id="importPreview"></div>
+<hr style="border:0;border-top:1px solid var(--line);margin:28px 0"><h3>✏️ Vokabeln direkt als Tabelle eingeben</h3><p class="mut">Trage beliebig viele Wörter ein und speichere anschließend alle Zeilen gemeinsam.</p>
+<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:8px">Englisch</th><th style="text-align:left;padding:8px">Deutsch</th><th></th></tr></thead><tbody id="manualRows"></tbody></table></div>
+<div class="row"><button class="secondary" onclick="app.addManualRow()">+ Zeile hinzufügen</button><button class="primary" onclick="app.saveManualTable()">Alle Vokabeln speichern</button><button class="danger" onclick="app.clearManualTable()">Tabelle leeren</button></div>
+<hr style="border:0;border-top:1px solid #dbe3ed;margin:28px 0">
+<h2>📤 Vokabeln exportieren</h2>
+<p class="mut">Exportiert alle gespeicherten Vokabeln als Tabelle – inklusive Wortart, Beispielsätzen, Verbformen, Lernstufe sowie Richtig/Falsch-Statistik.</p>
+<div class="row">
+ <button type="button" class="primary" onclick="app.exportCSV()">📄 Als CSV exportieren</button>
+ <button type="button" class="good" onclick="app.exportExcel()">📊 Als Excel (.xlsx) exportieren</button>
+</div>
+<p id="exportMsg" class="mut" style="margin-top:12px"></p>
+</section>
+<section id="words" class="panel hidden">
+<div class="top"><button class="secondary back" onclick="app.home()">← Startseite</button><h2>📚 Vokabeln anzeigen</h2></div>
+<div class="v3counts">
+ <div class="v3count"><span>🆕 Neuer Lernabschnitt</span><strong id="browserNewCount">0</strong></div>
+ <div class="v3count"><span>📚 Alter Lernabschnitt</span><strong id="browserOldCount">0</strong></div>
+</div>
+<div class="v3filters">
+ <div><label>Lernabschnitt</label><select id="browserSectionFilter" onchange="app.applyVocabularyFilters()"><option value="new">🆕 Neuer Lernabschnitt</option><option value="old">📚 Alter Lernabschnitt</option><option value="all">Alle Vokabeln</option></select></div>
+ <div><label>Wortart</label><select id="browserTypeFilter" onchange="app.applyVocabularyFilters()"><option value="all">Alle Wortarten</option><option value="noun">Nomen (Substantive)</option><option value="verb">Verben</option><option value="adjective">Adjektive</option><option value="pronoun">Pronomen</option><option value="adverb">Adverbien</option><option value="preposition">Präpositionen</option><option value="conjunction">Konjunktionen</option><option value="numeral">Numeralien</option><option value="interjection">Interjektionen</option></select></div>
+</div>
+<h3 id="vocabResultTitle" style="margin-top:24px">🆕 Neuer Lernabschnitt</h3>
+<div id="filteredWords"></div>
+<div id="list" class="hidden"></div>
+</section>
+<section id="gaps" class="panel hidden">
+<div class="top"><button class="secondary back" onclick="app.home()">← Startseite</button><h2>✍️ Lückensätze</h2></div>
+<div id="gapArea"></div>
+</section>
+<section id="stats" class="panel hidden"><div class="top"><button class="secondary back" onclick="app.home()">← Startseite</button><h2>📊 Lernstatistik</h2></div><div class="stats"><button class="stat" onclick="app.detail('all')"><span>📚</span><small>Vokabeln</small><strong id="sa">0</strong><small>Antippen →</small></button><button class="stat" onclick="app.detail('right')"><span>😊</span><small>Richtig</small><strong id="sr">0</strong><small>Antippen →</small></button><button class="stat" onclick="app.detail('wrong')"><span>😢</span><small>Falsch</small><strong id="sw">0</strong><small>Antippen →</small></button><button class="stat" onclick="app.openSuccessChart()"><span>🎯</span><small>Erfolgsquote</small><strong id="sp">0%</strong><small>Verlauf anzeigen →</small></button><button class="stat"><span>📈</span><small>Ø Stufe</small><strong id="sl">0</strong></button></div><div id="detail"></div></section>
+</div><div id="detailModal" class="modal hidden"><div class="modalbox">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><h2 style="margin:0">📖 Vokabelübersicht</h2><button class="secondary" onclick="app.closeDetail()">✕ Schließen</button></div>
+<div id="detailContent" style="margin-top:18px"></div>
+</div></div><div id="successModal" class="modal hidden"><div class="modalbox" style="width:min(900px,100%)">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><h2 style="margin:0">🎯 Entwicklung der Erfolgsquote</h2><button class="secondary" onclick="app.closeSuccessChart()">✕ Schließen</button></div>
+<div class="row" style="margin-top:18px">
+<button id="successWeekBtn" class="primary" onclick="app.setSuccessRange('week')">Woche</button>
+<button id="successMonthBtn" class="secondary" onclick="app.setSuccessRange('month')">Monat</button>
+<button id="successYearBtn" class="secondary" onclick="app.setSuccessRange('year')">Jahr</button>
+</div>
+<div id="successChartInfo" class="mut" style="margin:14px 0"></div>
+<div id="successChartWrap" style="overflow-x:auto"><svg id="successChart" viewBox="0 0 820 390" style="width:100%;min-width:650px;display:block" aria-label="Erfolgsquote als Liniendiagramm"></svg></div>
+<div id="successPointInfo" style="margin-top:12px"></div>
+</div></div><div id="editModal" class="modal hidden"><div class="modalbox"><h2>✏️ Vokabel bearbeiten</h2><input id="editId" type="hidden"><label>Englisch</label><input id="editEn"><label>Deutsch</label><input id="editDe"><div id="editPrimaryPluralBox" class="hidden"><label>Plural zu dieser Bedeutung</label><input id="editPrimaryPlural"></div><div id="editExtraMeanings"></div><button type="button" class="secondary" style="margin-top:9px" onclick="app.addEditMeaningField()">＋ Weitere Bedeutung hinzufügen</button><label>Wortart</label><select id="editType" onchange="document.getElementById('editNounFields').classList.toggle('hidden',this.value!=='noun');document.getElementById('editVerb').classList.toggle('hidden',this.value!=='verb');app.updateEditPluralVisibility()"><option value="">– auswählen –</option><option value="noun">Nomen (Substantive)</option><option value="verb">Verben</option><option value="adjective">Adjektive</option><option value="pronoun">Pronomen</option><option value="adverb">Adverbien</option><option value="preposition">Präpositionen</option><option value="conjunction">Konjunktionen</option><option value="numeral">Numeralien</option><option value="interjection">Interjektionen</option></select><div id="editNounFields" class="hidden"><label>Artikel</label><input id="editArticle" placeholder="z. B. the"></div><label>Beispielsatz Englisch</label><input id="editExampleEn"><label>Beispielsatz Deutsch</label><input id="editExampleDe"><div id="editVerb" class="hidden"><label>Present</label><input id="editPresent"><label>Simple Past</label><input id="editPast"><label>Past Participle</label><input id="editParticiple"><label>Future</label><input id="editFuture"></div><div class="row"><button class="primary" onclick="app.saveEdit()">Speichern</button><button class="secondary" onclick="app.closeEdit()">Abbrechen</button></div></div></div><script>
+class Vocabulary{constructor(en,de,img="",right=0,wrong=0,level=1,id=null,wordType="",exampleEn="",exampleDe="",present="",past="",participle="",future="",article="",learningSection="new",notes="",status="new"){this.id=id||Date.now().toString(36)+Math.random().toString(36).slice(2);this.en=en.trim();this.de=de.trim();this.img=img;this.right=right;this.wrong=wrong;this.level=level;this.wordType=wordType||"";this.exampleEn=exampleEn||"";this.exampleDe=exampleDe||"";this.present=present||"";this.past=past||"";this.participle=participle||"";this.future=future||"";this.article=article||"";this.status=(status==="old"?"old":"new");this.learningSection=this.status;this.notes=notes||""}mark(ok){ok?(this.right++,this.level=Math.min(5,this.level+1)):(this.wrong++,this.level=Math.max(1,this.level-1))}}
+class Store{constructor(){this.k="v5_add_rebuilt_20261002";this.lk="v5_add_rebuilt_20261002_last";this.hk="v5_add_rebuilt_20261002_success_history"}load(){try{return JSON.parse(localStorage.getItem(this.k)||"[]").map(x=>new Vocabulary(x.en,x.de,x.img,x.right,x.wrong,x.level,x.id,x.wordType,x.exampleEn,x.exampleDe,x.present,x.past,x.participle,x.future,x.article,x.learningSection||"new",x.notes||"",x.status||x.learningSection||"new"))}catch{return[]}}save(a){localStorage.setItem(this.k,JSON.stringify(a))}last(){return localStorage.getItem(this.lk)}setLast(x){localStorage.setItem(this.lk,x)}
+history(){try{return JSON.parse(localStorage.getItem(this.hk)||"[]")}catch{return[]}}
+saveHistory(h){localStorage.setItem(this.hk,JSON.stringify(h))}
+addHistory(entry){const h=this.history();h.push(entry);this.saveHistory(h)}}
+class App{constructor(){this.s=new Store();this.a=this.s.load();this.queue=[];this.cur=null;this.pending="";this.card=null;this.back=false;this.currentAddBatchIds=[];this.gapPool=[];this.gapQueue=[];this.gapCurrent=null;this.gapRight=0;this.gapWrong=0;this.gapMode="new";this.roundTotal=0;this.roundAnswered=0;this.roundRight=0;this.roundWrong=0;this.roundWrongIds=[];this.roundPool=[];this.nextTimer=null;this.secondsLeft=5}
+init(){this.a.forEach(v=>{v.status=(v.status==="old"?"old":"new");v.learningSection=v.status;});this.s.save(this.a);this.a.forEach(v=>{if(v.status!=="old"&&v.status!=="new")v.status=(v.status==="old"?"old":"new");v.learningSection=v.status;});this.s.save(this.a);this.a.forEach(v=>{if(!v.learningSection)v.learningSection="new";if(!Array.isArray(v.meanings)||!v.meanings.length)v.meanings=[v.de].filter(Boolean)});this.s.save(this.a);this.a.forEach(v=>{if(!Array.isArray(v.meanings)||!v.meanings.length)v.meanings=[v.de].filter(Boolean)});this.s.save(this.a);this.quizTemplate=quiz.innerHTML;
+form.onsubmit=e=>this.add(e);file.onchange=e=>this.pick(e.target.files[0]);cam.onchange=e=>this.pick(e.target.files[0]);ans.onkeydown=e=>{if(e.key==="Enter")this.check()};dir.onchange=()=>this.startRound(this.roundPool.length?this.roundPool:this.a);this.home();this.render();this.clearManualTable()}
+home(){this.stopCountdown();document.querySelectorAll(".wrap>section").forEach(x=>x.classList.add("hidden"));home.classList.remove("hidden");this.render()}
+open(id){document.querySelectorAll(".wrap>section").forEach(x=>x.classList.add("hidden"));document.getElementById(id).classList.remove("hidden");if(id==="learn")this.openLearning();if(id==="cards")this.newCard();this.render();if(id==="words")this.renderWords()}
+gapEligible(section){
+ return this.a.filter(v=>v.status===section&&v.exampleEn&&v.exampleEn.trim()&&v.en&&v.en.trim()&&this.makeGapSentence(v)!==v.exampleEn);
+}
+makeGapSentence(v){
+ const word=(v.en||"").trim();
+ const sentence=v.exampleEn||"";
+ if(!word||!sentence)return sentence;
+ const esc=word.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+ const re=new RegExp("\\b"+esc+"\\b","i");
+ return sentence.replace(re,"__________");
+}
+openGapSentences(){
+ document.querySelectorAll(".wrap>section").forEach(x=>x.classList.add("hidden"));
+ document.getElementById("gaps").classList.remove("hidden");
+ const fresh=this.gapEligible("new"),old=this.gapEligible("old");
+ gapArea.innerHTML=`<div style="text-align:center;padding:24px">
+ <div style="font-size:64px">✍️</div><h2>Welche Lückensätze möchtest du üben?</h2>
+ <p class="mut">Verwendet werden deine gespeicherten englischen Beispielsätze.</p>
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:800px;margin:24px auto">
+ <button class="primary" style="padding:24px;font-size:18px" ${fresh.length?"onclick=\"app.startGapRound('new')\"":'disabled'}>🆕 Neue Lückensätze lernen<div style="font-size:14px;margin-top:8px;font-weight:400">${fresh.length} Satz${fresh.length===1?"":"sätze"}</div></button>
+ <button class="secondary" style="padding:24px;font-size:18px" ${old.length?"onclick=\"app.startGapRound('old')\"":'disabled'}>📚 Alte Lückensätze wiederholen<div style="font-size:14px;margin-top:8px;font-weight:400">${old.length} Satz${old.length===1?"":"sätze"}</div></button>
+ </div>
+ ${!fresh.length&&!old.length?'<p class="mut">Noch keine geeigneten Beispielsätze vorhanden.</p>':""}</div>`;
+}
+startGapRound(mode){
+ this.gapMode=mode;this.gapPool=this.gapEligible(mode);this.gapQueue=this.shuffle([...this.gapPool]);
+ this.gapRight=0;this.gapWrong=0;this.nextGap();
+}
+nextGap(){
+ if(!this.gapQueue.length){this.finishGapRound();return}
+ this.gapCurrent=this.gapQueue.shift();
+ const v=this.gapCurrent,meaning=(v.meanings&&v.meanings.length?v.meanings[0]:v.de);
+ const sentence=this.makeGapSentence(v);
+ const n=this.gapPool.length-this.gapQueue.length;
+ gapArea.innerHTML=`<div style="max-width:760px;margin:auto;text-align:center">
+ <div class="mut" style="font-weight:700">Satz ${n} von ${this.gapPool.length}</div>
+ <div style="font-size:28px;line-height:1.6;margin:28px 0;padding:22px;background:#f8fafc;border-radius:16px">${this.esc(sentence)} <span style="color:#0f766e">(${this.esc(meaning)})</span></div>
+ <label for="gapAnswer">Fehlendes englisches Wort</label><input id="gapAnswer" autocomplete="off" placeholder="Antwort eingeben …">
+ <button class="primary" style="margin-top:14px" onclick="app.checkGap()">Antwort prüfen</button>
+ <div id="gapFeedback"></div></div>`;
+ const input=document.getElementById("gapAnswer");if(input){input.focus();input.onkeydown=e=>{if(e.key==="Enter")this.checkGap()}}
+}
+checkGap(){
+ const input=document.getElementById("gapAnswer");if(!input||!input.value.trim()||!this.gapCurrent)return;
+ const ok=this.norm(input.value)===this.norm(this.gapCurrent.en);
+ if(ok)this.gapRight++;else this.gapWrong++;
+ this.playAnswerSound(ok);
+ const full=this.esc(this.gapCurrent.exampleEn||"");
+ gapFeedback.innerHTML=ok?`<div class="result"><div class="smiley">😊</div><h2 class="right">RICHTIG!</h2><p style="font-size:20px">${full}</p><button class="primary" onclick="app.nextGap()">Weiter →</button></div>`:`<div class="result"><div class="smiley">😢</div><h2 class="wrong">FALSCH!</h2><p>Richtige Antwort: <b>${this.esc(this.gapCurrent.en)}</b></p><p style="font-size:20px">${full}</p><button class="primary" onclick="app.nextGap()">Weiter →</button></div>`;
+ input.disabled=true;
+}
+finishGapRound(){
+ const total=this.gapRight+this.gapWrong,pct=total?Math.round(this.gapRight/total*100):0;
+ gapArea.innerHTML=`<div class="result" style="padding:28px;background:#f8fafc;border-radius:18px"><div style="font-size:64px">🎉</div><h2>Lückensatz-Runde beendet!</h2><div style="font-size:24px;line-height:1.8"><div>😊 Richtig: <b>${this.gapRight}</b></div><div>😢 Falsch: <b>${this.gapWrong}</b></div><div>📚 Gesamt: <b>${total}</b></div><div>🎯 Erfolgsquote: <b>${pct}%</b></div></div><div class="row"><button class="primary" onclick="app.startGapRound('${this.gapMode}')">🔄 Nochmal üben</button><button class="secondary" onclick="app.home()">🏠 Zur Startseite</button></div></div>`;
+}
+openLearning(){
+ const fresh=this.a.filter(v=>v.status==="new");
+ const old=this.a.filter(v=>v.status==="old");
+ this.stopCountdown();
+ this.cur=null;
+ const empty=document.getElementById("learnEmpty");
+ const qz=document.getElementById("quiz");
+ if(empty)empty.classList.add("hidden");
+ if(!qz)return;
+ qz.classList.remove("hidden");
+ qz.innerHTML=`<div style="text-align:center;padding:28px 18px">
+   <div style="font-size:64px">🎓</div>
+   <h2>Was möchtest du lernen?</h2>
+   <p class="mut">Neue Vokabeln stehen im Vordergrund. Alte Vokabeln kannst du unabhängig davon wiederholen.</p>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:800px;margin:25px auto">
+     <button class="primary" style="padding:24px;font-size:18px" ${fresh.length?'onclick="app.startNewLearning()"':'disabled'}>
+       🆕 Vokabeln vom neuen Lernabschnitt lernen
+       <div style="font-size:14px;margin-top:8px;font-weight:400">${fresh.length} Vokabel${fresh.length===1?"":"n"}</div>
+     </button>
+     <button class="secondary" style="padding:24px;font-size:18px" ${old.length?'onclick="app.startOldReview()"':'disabled'}>
+       📚 Vokabeln vom alten Lernabschnitt wiederholen
+       <div style="font-size:14px;margin-top:8px;font-weight:400">${old.length} Vokabel${old.length===1?"":"n"}</div>
+     </button>
+   </div>
+   ${!fresh.length&&!old.length?`<p class="mut">Noch keine Vokabeln vorhanden.</p><button class="primary" onclick="app.open('add')">➕ Vokabel hinzufügen</button>`:""}
+ </div>`;
+}
+startNewLearning(){
+ const fresh=this.a.filter(v=>v.status==="new");
+ if(!fresh.length){this.openLearning();return}
+ this.learningMode="new";
+ quiz.innerHTML=this.quizTemplate;
+ this.rebindQuiz();
+ this.startRound(fresh);
+}
+startOldReview(){
+ const old=this.a.filter(v=>v.status==="old");
+ if(!old.length){this.openLearning();return}
+ this.learningMode="old";
+ quiz.innerHTML=this.quizTemplate;
+ this.rebindQuiz();
+ this.startRound(old);
+}
+startRound(pool){this.roundCorrectProgress=0;this.stopCountdown();this.roundPool=[...pool];this.queue=this.shuffle([...pool]);let last=this.s.last();if(this.queue.length>1&&this.queue[0]?.id===last)[this.queue[0],this.queue[1]]=[this.queue[1],this.queue[0]];this.roundTotal=this.queue.length;this.roundAnswered=0;this.roundRight=0;this.roundWrong=0;this.roundWrongIds=[];result.innerHTML="";this.next()}
+shuffle(a){for(let i=a.length-1;i;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+updateGreenProgress(){const total=this.roundTotal||0,correct=this.roundCorrectProgress||0,fill=document.getElementById("learningProgressFill");if(fill)fill.style.width=(total?Math.min(100,correct/total*100):0)+"%"}
+next(){this.updateGreenProgress();this.stopCountdown();if(!this.queue.length){if(this.roundTotal>0&&this.roundAnswered>=this.roundTotal){this.finishRound();return}this.cur=null;emptyLearn.classList.remove("hidden");quiz.classList.add("hidden");return}this.cur=this.queue.shift();emptyLearn.classList.add("hidden");quiz.classList.remove("hidden");this.s.setLast(this.cur.id);progress.textContent=`Vokabel ${this.roundAnswered+1} von ${this.roundTotal}`;q.textContent=dir.value==="de-en"?this.cur.de:this.cur.en;ans.value="";result.innerHTML="";this.showImg(qimg,this.cur.img);ans.focus()}
+norm(x){return x.trim().toLowerCase().replace(/[.!?]/g,"")}fullVerbFormsHtml(v){
+ if(v.wordType!=="verb")return "";
+ const labels={i:"I",youS:"you (Singular)",he:"he",she:"she",it:"it",we:"we",youP:"you (Plural)",they:"they"};
+ const keys=["i","youS","he","she","it","we","youP","they"];
+ const table=(title,data)=>{
+   if(!data||!keys.some(k=>data[k]))return "";
+   return `<div style="margin-top:18px"><h4 style="margin:0 0 10px">${title}</h4>
+   <div class="verbResultGrid">
+   ${keys.map(k=>data[k]?`<div class="mut">${labels[k]}</div><div><b>${this.esc(data[k])}</b></div>`:"").join("")}
+   </div></div>`;
+ };
+ const c=v.conjugations||{};
+ let body="";
+ body+=table("Present",c.present);
+ body+=table("Simple Past",c.past);
+ if(v.participle)body+=`<div style="margin-top:18px"><h4 style="margin:0 0 8px">Past Participle</h4><div><b>${this.esc(v.participle)}</b></div></div>`;
+ body+=table("Future",c.future);
+
+ // Compatibility with older saved vocabulary.
+ if(!body){
+   if(v.present)body+=`<div><b>Present:</b> ${this.esc(v.present)}</div>`;
+   if(v.past)body+=`<div><b>Simple Past:</b> ${this.esc(v.past)}</div>`;
+   if(v.participle)body+=`<div><b>Past Participle:</b> ${this.esc(v.participle)}</div>`;
+   if(v.future)body+=`<div><b>Future:</b> ${this.esc(v.future)}</div>`;
+ }
+ if(!body)return "";
+ return `<div class="allVerbForms"><h3>🔤 Alle Verbformen & Konjugationen</h3>${body}</div>`;
+}
+fullVerbFormsHtml(v){
+ if(v.wordType!=="verb")return "";
+ const labels={i:"I",youS:"you (Singular)",he:"he",she:"she",it:"it",we:"we",youP:"you (Plural)",they:"they"};
+ const keys=["i","youS","he","she","it","we","youP","they"];
+ const c=v.conjugations||{};
+ const table=(title,data)=>{
+   if(!data||!keys.some(k=>data[k]))return "";
+   return `<section class="verbTense"><h4>${title}</h4><div class="verbResultGrid">${keys.map(k=>data[k]?`<div class="verbPerson">${labels[k]}</div><div class="verbForm"><b>${this.esc(data[k])}</b></div>`:"").join("")}</div></section>`;
+ };
+ let body=table("Present",c.present)+table("Simple Past",c.past);
+ if(v.participle)body+=`<section class="verbTense"><h4>Past Participle</h4><div class="verbForm"><b>${this.esc(v.participle)}</b></div></section>`;
+ body+=table("Future",c.future);
+
+ // Compatibility for older vocabulary without detailed conjugation.
+ if(!body){
+   if(v.present)body+=`<div><b>Present:</b> ${this.esc(v.present)}</div>`;
+   if(v.past)body+=`<div><b>Simple Past:</b> ${this.esc(v.past)}</div>`;
+   if(v.participle)body+=`<div><b>Past Participle:</b> ${this.esc(v.participle)}</div>`;
+   if(v.future)body+=`<div><b>Future:</b> ${this.esc(v.future)}</div>`;
+ }
+ return body?`<div class="allVerbForms"><h3>🔤 Alle Verbformen & Konjugationen</h3>${body}</div>`:"";
+}
+extraInfo(v,showVerbForms=true){
+ let x="";
+ if(v.exampleEn||v.exampleDe)x+=`<div style="margin:14px auto;max-width:700px;background:#f8fafc;padding:14px;border-radius:12px"><b>💬 Beispielsatz</b>${v.exampleEn?`<div>${this.esc(v.exampleEn)}</div>`:""}${v.exampleDe?`<div class="mut">${this.esc(v.exampleDe)}</div>`:""}</div>`;
+ if(v.notes)x+=`<div style="margin:14px auto;max-width:700px;background:#ecfeff;padding:14px;border-radius:12px"><b>📝 Eigene Notizen / Besonderheiten</b><div>${this.esc(v.notes)}</div></div>`;
+ if(showVerbForms&&["verb","verben"].includes(String(v.wordType||"").trim().toLowerCase()))x+=this.fullVerb2(v);
+ return x;
+}
+playCorrectSound(){
+ try{
+   const C=window.AudioContext||window.webkitAudioContext;
+   if(!C)return;
+   const ctx=new C(),master=ctx.createGain();
+   master.gain.setValueAtTime(0.0001,ctx.currentTime);
+   master.gain.exponentialRampToValueAtTime(0.16,ctx.currentTime+0.08);
+   master.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+1.7);
+   master.connect(ctx.destination);
+   // Soft layered vibration resembling a short purr.
+   [48,54,60].forEach((f,i)=>{
+     const o=ctx.createOscillator(),g=ctx.createGain(),lfo=ctx.createOscillator(),lg=ctx.createGain();
+     o.type="sine";o.frequency.value=f;
+     lfo.type="sine";lfo.frequency.value=24+i*2;lg.gain.value=0.18;
+     lfo.connect(lg);lg.connect(g.gain);o.connect(g);g.connect(master);
+     g.gain.value=0.45/(i+1);
+     o.start();lfo.start();o.stop(ctx.currentTime+1.7);lfo.stop(ctx.currentTime+1.7);
+   });
+ }catch(e){}
+}
+playWrongSound(){
+ try{
+   // Spoken "Buuuuuu" gives a clearer comic wrong-answer cue.
+   if("speechSynthesis" in window){
+     speechSynthesis.cancel();
+     const u=new SpeechSynthesisUtterance("Buuuuuuuuuu!");
+     u.lang="de-DE";u.rate=0.55;u.pitch=0.55;u.volume=1;
+     speechSynthesis.speak(u);
+   }
+ }catch(e){}
+}
+playAnswerSound(ok){if(ok)this.playCorrectSound();else this.playWrongSound()}
+check(){if(!this.cur||!ans.value.trim())return;let meanings=(this.cur.meanings&&this.cur.meanings.length?this.cur.meanings:[this.cur.de]);let exp=dir.value==="de-en"?this.cur.en:meanings.join(" / ");let ok=dir.value==="de-en"?this.norm(ans.value)===this.norm(this.cur.en):meanings.some(m=>this.norm(ans.value)===this.norm(m));this.cur.mark(ok);this.roundAnswered++;if(ok)this.roundRight++;else{this.roundWrong++;this.roundWrongIds.push(this.cur.id)}this.s.save(this.a);if(ok){this.roundCorrectProgress++;this.updateGreenProgress();}this.playAnswerSound(ok);this.render();progress.textContent=`Vokabel ${this.roundAnswered} von ${this.roundTotal}`;result.innerHTML=ok?`<div class="result"><div class="smiley">😊</div><h2 class="right">RICHTIG!</h2>${this.extraInfo(this.cur,ok)}<button class="primary" onclick="app.continueRound()">Weiter →</button></div>`:`<div class="result"><div class="smiley">😢</div><h2 class="wrong">FALSCH!</h2><p>Richtige Antwort: <b>${this.esc(exp)}</b></p>${this.extraInfo(this.cur,ok)}<button class="primary" onclick="app.continueRound()">Weiter →</button></div>`;ans.disabled=true}
+startCountdown(){this.stopCountdown();this.secondsLeft=5;this.drawCountdown();this.nextTimer=setInterval(()=>{this.secondsLeft--;this.drawCountdown();if(this.secondsLeft<=0){this.stopCountdown();this.continueRound()}},1000)}
+drawCountdown(){const el=document.getElementById("countdown");if(el)el.textContent=(this.roundAnswered>=this.roundTotal?"Auswertung":"Nächste Vokabel")+" automatisch in "+this.secondsLeft+" Sekunden"}
+stopCountdown(){if(this.nextTimer!==null){clearInterval(this.nextTimer);this.nextTimer=null}}
+continueRound(){this.stopCountdown();ans.disabled=false;if(this.roundAnswered>=this.roundTotal)this.finishRound();else this.next()}
+finishRound(){
+ this.stopCountdown();this.cur=null;ans.disabled=false;
+ let pct=this.roundTotal?Math.round(this.roundRight/this.roundTotal*100):0;this.s.addHistory({date:new Date().toISOString(),right:this.roundRight,wrong:this.roundWrong,total:this.roundTotal,rate:pct,mode:this.learningMode||"new"});
+ this.finishedRoundIds=this.roundPool.map(v=>v.id);
+ const oldReview=this.learningMode==="old";
+ quiz.innerHTML=`<div class="result" style="padding:28px;background:#f8fafc;border:1px solid var(--line);border-radius:18px">
+   <div style="font-size:64px">${oldReview?"📚":"🎉"}</div>
+   <h2>${oldReview?"Wiederholungsrunde beendet!":"Lernrunde beendet!"}</h2>
+   <div style="font-size:24px;line-height:1.8">
+     <div>😊 Richtig: <b>${this.roundRight}</b></div>
+     <div>😢 Falsch: <b>${this.roundWrong}</b></div>
+     <div>📚 Gesamt: <b>${this.roundTotal}</b></div>
+     <div>🎯 Erfolgsquote: <b>${pct}%</b></div>
+   </div>
+   ${oldReview
+     ? `<h3 style="margin-top:24px">Möchtest du die alten Vokabeln noch einmal wiederholen?</h3>
+        <div class="row"><button class="primary" onclick="app.repeatCurrentSection()">🔄 Ja, nochmal wiederholen</button><button class="secondary" onclick="app.home()">🏠 Nein, zur Startseite</button></div>`
+     : `<h3 style="margin-top:24px">Möchtest du diese Vokabeln noch einmal lernen?</h3>
+        <div class="row"><button class="primary" onclick="app.repeatCurrentSection()">🔄 Ja, nochmal lernen</button><button class="good" onclick="app.completeCurrentSection()">✅ Nein, Lernabschnitt abschließen</button><button class="secondary" onclick="app.home()">🏠 Zur Startseite</button></div>`
+   }
+ </div>`;
+}
+repeatCurrentSection(){let pool=this.a.filter(v=>(this.finishedRoundIds||[]).includes(v.id));quiz.innerHTML=this.quizTemplate;this.rebindQuiz();this.startRound(pool)}
+completeCurrentSection(){let ids=this.finishedRoundIds||[];this.a.forEach(v=>{if(ids.includes(v.id)){v.status="old";v.learningSection="old"}});this.s.save(this.a);this.render();this.home();alert("✓ Die Vokabeln wurden in den alten Lernabschnitt verschoben.")}
+restartRound(){this.stopCountdown();quiz.innerHTML=this.quizTemplate;this.rebindQuiz();this.startRound(this.a)}
+rebindQuiz(){const newAns=document.getElementById("answer");const newDir=document.getElementById("direction");if(newAns)newAns.onkeydown=e=>{if(e.key==="Enter")this.check()};if(newDir)newDir.onchange=()=>this.startRound(this.roundPool.length?this.roundPool:this.a)}
+restartWrong(){let bad=this.a.filter(v=>this.roundWrongIds.includes(v.id));this.stopCountdown();quiz.innerHTML=this.quizTemplate;this.rebindQuiz();this.startRound(bad)}
+speak(){if(this.cur)this.say(this.cur.en)}say(t){if(!("speechSynthesis"in window))return;let u=new SpeechSynthesisUtterance(t);u.lang="en-GB";speechSynthesis.cancel();speechSynthesis.speak(u)}
+toggleVerbFields(){
+ const fields=document.getElementById("verbFields");
+ const type=document.getElementById("wordType");
+ if(!fields||!type)return;
+ fields.classList.toggle("hidden",type.value!=="verb");
+}
+addMeaningField(value="",plural=""){
+ const box=document.getElementById("extraMeanings");if(!box)return;
+ const row=document.createElement("div");row.className="meaningRow";row.style.alignItems="flex-end";
+ const meaningWrap=document.createElement("div");meaningWrap.style.flex="1";
+ const ml=document.createElement("label");ml.textContent="Weitere deutsche Bedeutung";
+ const input=document.createElement("input");input.type="text";input.className="extraMeaning";input.value=value;
+ meaningWrap.append(ml,input);
+ const pluralWrap=document.createElement("div");pluralWrap.className="extraPluralWrap";pluralWrap.style.flex="1";
+ const pl=document.createElement("label");pl.textContent="Plural zu dieser Bedeutung";
+ const pi=document.createElement("input");pi.type="text";pi.className="extraPlural";pi.value=plural;
+ pluralWrap.append(pl,pi);
+ if(document.getElementById("wordType")?.value!=="noun")pluralWrap.classList.add("hidden");
+ const del=document.createElement("button");del.type="button";del.className="danger";del.textContent="✕";del.onclick=()=>row.remove();
+ row.append(meaningWrap,pluralWrap,del);box.appendChild(row);
+}
+getMeanings(){
+ const vals=[de.value.trim(),...Array.from(document.querySelectorAll("#extraMeanings .extraMeaning")).map(x=>x.value.trim())];
+ return [...new Set(vals.filter(Boolean))];
+}
+updatePluralVisibility(){
+ const noun=document.getElementById("wordType")?.value==="noun";
+ document.getElementById("primaryPluralBox")?.classList.toggle("hidden",!noun);
+ document.querySelectorAll(".extraPluralWrap").forEach(x=>x.classList.toggle("hidden",!noun));
+}
+pick(f){if(!f)return;let r=new FileReader();r.onload=()=>{this.pending=r.result;preview.src=r.result;preview.classList.remove("hidden")};r.readAsDataURL(f)}useUrl(){this.pending=url.value.trim();preview.src=this.pending;preview.classList.remove("hidden")}
+async autoConjugateVerb(){
+ const msg=document.getElementById("autoVerbMsg");
+ const word=(document.getElementById("en")?.value||"").trim().toLowerCase().replace(/^to\s+/,"");
+ if(!word){if(msg)msg.textContent="Bitte zuerst das englische Verb eingeben.";return}
+ if(msg)msg.textContent="🌐 Konjugation wird geladen …";
+ try{
+   const mod=await import("https://cdn.jsdelivr.net/npm/en-inflectors@1.0.12/+esm");
+   const Inflectors=mod.Inflectors||mod.default?.Inflectors||mod.default;
+   if(!Inflectors)throw new Error("Inflectors nicht verfügbar");
+   const inf=new Inflectors(word);
+   const base=inf.toPresent?inf.toPresent():word;
+   const third=inf.toPresentS?inf.toPresentS():word;
+   const past=inf.toPast?inf.toPast():word;
+   const part=inf.toPastParticiple?inf.toPastParticiple():past;
+   const set=(id,val)=>{const e=document.getElementById(id);if(e)e.value=val};
+
+   set("present_i",base); set("present_youS",base);
+   set("present_he",third); set("present_she",third); set("present_it",third);
+   set("present_we",base); set("present_youP",base); set("present_they",base);
+
+   ["i","youS","he","she","it","we","youP","they"].forEach(k=>set("past_"+k,past));
+   set("participleForm",part);
+   ["i","youS","he","she","it","we","youP","they"].forEach(k=>set("future_"+k,"will "+base));
+
+   if(msg)msg.innerHTML=`✓ <b>${this.esc(word)}</b> wurde automatisch nach Personen konjugiert.`;
+ }catch(e){
+   if(msg)msg.textContent="⚠️ Automatische Konjugation konnte nicht geladen werden. Bitte Internetverbindung prüfen oder die Felder manuell ausfüllen.";
+ }
+}
+readDetailedConjugation(prefix){
+ const o={};["i","youS","he","she","it","we","youP","they"].forEach(k=>o[k]=(document.getElementById(prefix+"_"+k)?.value||"").trim());return o;
+}
+simpleFallbackSentence(word,type){
+ const w=word.trim();
+ if(type==="verb")return "I "+w+" every day.";
+ if(type==="adjective")return "This is very "+w+".";
+ if(type==="adverb")return "He speaks "+w+".";
+ if(type==="noun")return "This is a "+w+".";
+ return "I use the word "+w+".";
+}
+async autoExampleSentence(){
+ const msg=document.getElementById("autoExampleMsg");
+ const word=(document.getElementById("en")?.value||"").trim();
+ const type=document.getElementById("wordType")?.value||"";
+ if(!word){if(msg)msg.textContent="Bitte zuerst die englische Vokabel eingeben.";return}
+ if(msg)msg.textContent="🌐 Beispielsatz wird gesucht …";
+ let sentence="";
+ try{
+   // Try a public dictionary example first.
+   const r=await fetch("https://api.dictionaryapi.dev/api/v2/entries/en/"+encodeURIComponent(word));
+   if(r.ok){
+     const data=await r.json();
+     const examples=[];
+     (Array.isArray(data)?data:[]).forEach(entry=>(entry.meanings||[]).forEach(m=>(m.definitions||[]).forEach(d=>{
+       if(d.example&&typeof d.example==="string")examples.push(d.example.trim());
+     })));
+     if(examples.length){
+       // Prefer a short, learner-friendly example.
+       examples.sort((a,b)=>a.split(/\s+/).length-b.split(/\s+/).length);
+       sentence=examples.find(x=>x.split(/\s+/).length<=12)||examples[0];
+     }
+   }
+ }catch(e){}
+ if(!sentence)sentence=this.simpleFallbackSentence(word,type);
+
+ // Normalize sentence capitalization.
+ sentence=sentence.trim();
+ if(sentence)sentence=sentence.charAt(0).toUpperCase()+sentence.slice(1);
+ if(sentence&&!/[.!?]$/.test(sentence))sentence+=".";
+
+ let german="";
+ try{
+   if(msg)msg.textContent="🌐 Deutsche Übersetzung wird geladen …";
+   const u="https://api.mymemory.translated.net/get?q="+encodeURIComponent(sentence)+"&langpair=en|de";
+   const tr=await fetch(u);
+   if(!tr.ok)throw new Error("translation failed");
+   const td=await tr.json();
+   german=(td?.responseData?.translatedText||"").trim();
+ }catch(e){}
+
+ const enField=document.getElementById("exampleEn");
+ const deField=document.getElementById("exampleDe");
+ if(enField)enField.value=sentence;
+ if(deField&&german)deField.value=german;
+ if(msg){
+   msg.innerHTML=german
+     ? "✓ Englischer Beispielsatz und deutsche Übersetzung wurden eingefügt. Bitte vor dem Speichern kontrollieren."
+     : "✓ Englischer Beispielsatz wurde eingefügt. Die automatische Übersetzung war nicht verfügbar; Deutsch kann manuell ergänzt werden.";
+ }
+}
+add(e){
+ e.preventDefault();
+ const get=id=>document.getElementById(id);
+ const enEl=get("en"),deEl=get("de"),typeEl=get("wordType");
+ if(!enEl||!deEl){window.alert("Formularfehler: Eingabefelder wurden nicht gefunden.");return}
+ const english=enEl.value.trim(),german=deEl.value.trim();
+ if(!english||!german){window.alert("Bitte Englisch und Deutsch ausfüllen.");return}
+ const duplicate=this.a.find(v=>(v.en||"").trim().toLocaleLowerCase("en-GB")===english.toLocaleLowerCase("en-GB"));
+ if(duplicate){window.alert("⚠️ Diese Vokabel ist bereits vorhanden!\\n\\n"+duplicate.en+" = "+duplicate.de);return}
+ const type=typeEl?.value||"";
+ const v=new Vocabulary(english,german,this.pending||"",0,0,1,null,type,(get("exampleEn")?.value||"").trim(),(get("exampleDe")?.value||"").trim(),(get("presentForm")?.value||"").trim(),(get("pastForm")?.value||"").trim(),(get("participleForm")?.value||"").trim(),(get("futureForm")?.value||"").trim(),type==="noun"?(get("articleField")?.value||"").trim():"","new",(get("notesField")?.value||"").trim(),"new");
+ const extras=Array.from(document.querySelectorAll("#extraMeanings .extraMeaning")).map(x=>x.value.trim()).filter(Boolean);
+ v.meanings=[german,...extras.filter(x=>x!==german)];
+ v.de=v.meanings[0];
+ v.plurals=type==="noun"?[(get("primaryPlural")?.value||"").trim(),...Array.from(document.querySelectorAll("#extraMeanings .extraPlural")).map(x=>x.value.trim())].slice(0,v.meanings.length):[];
+ v.status="new";v.learningSection="new";
+ this.a.push(v);
+ if(this.a.length&&document.getElementById("wordType")?.value==="verb"){const vv=this.a[this.a.length-1];vv.conjugations={present:this.readDetailedConjugation("present"),past:this.readDetailedConjugation("past"),future:this.readDetailedConjugation("future")};vv.participle=(document.getElementById("participleForm")?.value||"").trim();}this.s.save(this.a);
+ this.queue=[];
+ const formEl=get("form");if(formEl)formEl.reset();
+ const extrasBox=get("extraMeanings");if(extrasBox)extrasBox.innerHTML="";
+ const noun=get("nounFields"),plural=get("primaryPluralBox"),verb=get("verbFields");
+ if(noun)noun.classList.add("hidden");if(plural)plural.classList.add("hidden");if(verb)verb.classList.add("hidden");
+ this.pending="";const previewEl=get("preview");if(previewEl)previewEl.classList.add("hidden");
+ const msgEl=get("msg");if(msgEl)msgEl.textContent="✓ Vokabel gespeichert.";
+ this.render();
+ setTimeout(()=>this.askAddAnother(),0);
+}
+askAddAnother(){
+ const yes=window.confirm("✓ Vokabel gespeichert.\n\nMöchtest du eine weitere Vokabel hinzufügen?\n\nOK = Ja\nAbbrechen = Nein");
+ if(yes){this.open("add");setTimeout(()=>{const f=document.getElementById("en");if(f)f.focus();},50);return;}
+ this.currentAddBatchIds=[];this.s.save(this.a);this.render();this.home();
+ window.alert("✓ Hinzufügen abgeschlossen.\n\nDie neuen Vokabeln bleiben im neuen Lernabschnitt.");
+}
+async previewImport(){try{let f=importFile.files[0];if(!f)throw Error("Bitte zuerst eine Excel- oder CSV-Datei auswählen.");let rows=[];let name=f.name.toLowerCase();if(name.endsWith(".csv")){let t=await f.text(),ls=t.split(/\r?\n/).filter(Boolean),sep=(ls[0].match(/;/g)||[]).length>(ls[0].match(/,/g)||[]).length?";":",";rows=ls.map(x=>x.split(sep).map(y=>y.trim().replace(/^["']|["']$/g,"")))}else{if(typeof XLSX==="undefined")throw Error("Excel-Modul konnte nicht geladen werden. Bitte Internetverbindung prüfen.");let data=await f.arrayBuffer(),wb=XLSX.read(data,{type:"array"}),ws=wb.Sheets[wb.SheetNames[0]];rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:""})}if(rows[0]&&/englisch|english/i.test(String(rows[0][0])))rows.shift();this.pendingImport=rows.filter(r=>String(r[0]).trim()&&String(r[1]).trim()).map(r=>[String(r[0]).trim(),String(r[1]).trim()]);if(!this.pendingImport.length)throw Error("Keine Vokabeln in Spalte A und B gefunden.");importPreview.innerHTML='<h3>Vorschau</h3>'+this.pendingImport.slice(0,100).map(r=>`<div class="item"><div><b>${this.esc(r[0])}</b> – ${this.esc(r[1])}</div></div>`).join('')+(this.pendingImport.length>100?`<p class="mut">… und ${this.pendingImport.length-100} weitere</p>`:'')+`<button class="primary" onclick="app.confirmImport()">${this.pendingImport.length} Vokabeln speichern</button>`;imsg.textContent="Datei erfolgreich gelesen. Bitte Vorschau prüfen."}catch(e){imsg.textContent=e.message;importPreview.innerHTML=""}}
+confirmImport(){if(!this.pendingImport?.length)return;this.pendingImport.forEach(r=>this.a.push(new Vocabulary(r[0],r[1])));let n=this.pendingImport.length;this.s.save(this.a);this.pendingImport=[];importPreview.innerHTML="";importFile.value="";imsg.textContent=`✓ ${n} Vokabeln gespeichert.`;this.queue=[];this.render()}
+addManualRow(enVal="",deVal=""){let tr=document.createElement("tr");tr.innerHTML=`<td style="padding:6px"><input class="manual-en" value="${this.esc(enVal)}" placeholder="z. B. house"></td><td style="padding:6px"><input class="manual-de" value="${this.esc(deVal)}" placeholder="z. B. Haus"></td><td style="padding:6px"><button class="danger" onclick="this.closest('tr').remove()">✕</button></td>`;manualRows.appendChild(tr)}
+clearManualTable(){manualRows.innerHTML="";for(let i=0;i<5;i++)this.addManualRow()}
+saveManualTable(){let rows=[...manualRows.querySelectorAll("tr")],added=0;rows.forEach(tr=>{let e=tr.querySelector(".manual-en").value.trim(),d=tr.querySelector(".manual-de").value.trim();if(e&&d){this.a.push(new Vocabulary(e,d));added++}});if(!added){imsg.textContent="Bitte mindestens eine vollständige Tabellenzeile ausfüllen.";return}this.s.save(this.a);this.queue=[];this.clearManualTable();imsg.textContent=`✓ ${added} Vokabeln aus der Tabelle gespeichert.`;this.render()}
+
+deleteVocabularyById(id){
+ const sid=String(id);
+ const index=this.a.findIndex(v=>String(v.id)===sid);
+ if(index<0){
+   window.alert("Fehler: Vokabel wurde nicht gefunden.");
+   return false;
+ }
+ const v=this.a[index];
+ if(!window.confirm("Vokabel wirklich löschen?\n\n"+v.en+" = "+v.de)) return false;
+
+ // Remove exactly one object.
+ this.a.splice(index,1);
+
+ // Persist using the same Store object used for loading.
+ this.s.save(this.a);
+
+ // Remove stale references.
+ this.queue=this.queue.filter(x=>String(x.id)!==sid);
+ if(this.cur && String(this.cur.id)===sid)this.cur=null;
+ if(this.card && String(this.card.id)===sid)this.card=null;
+
+ // Close overlays if open.
+ const dm=document.getElementById("detailModal");
+ if(dm)dm.classList.add("hidden");
+ const em=document.getElementById("editModal");
+ if(em)em.classList.add("hidden");
+
+ // Repaint current list and statistics.
+ this.render();
+ this.renderWords();
+
+ window.alert("✓ Vokabel wurde gelöscht.");
+ return false;
+}
+remove(id){
+ const sid=String(id);
+ const v=this.a.find(x=>String(x.id)===sid);
+ if(!v){alert("Vokabel nicht gefunden.");return}
+ if(!confirm("Vokabel wirklich löschen?\n\n"+v.en+" = "+v.de))return;
+ this.a=this.a.filter(x=>String(x.id)!==sid);
+ localStorage.setItem(this.s.k,JSON.stringify(this.a));
+ this.queue=this.queue.filter(x=>String(x.id)!==sid);
+ if(this.cur&&String(this.cur.id)===sid)this.cur=null;
+ if(this.card&&String(this.card.id)===sid)this.card=null;
+ document.getElementById("detailModal")?.classList.add("hidden");
+ document.getElementById("editModal")?.classList.add("hidden");
+ this.render();
+ this.renderWords();
+}
+typeLabel(t){return({noun:"Nomen (Substantiv)",verb:"Verb",adjective:"Adjektiv",pronoun:"Pronomen",adverb:"Adverb",preposition:"Präposition",conjunction:"Konjunktion",numeral:"Numerale",interjection:"Interjektion"})[t]||"Keine Wortart"}
+openVocabularyBrowser(){document.querySelectorAll(".wrap>section").forEach(x=>x.classList.add("hidden"));document.getElementById("words").classList.remove("hidden");this.updateBrowserCounts();this.applyVocabularyFilters()}
+updateBrowserCounts(){let n=document.getElementById("browserNewCount"),o=document.getElementById("browserOldCount");if(n)n.textContent=this.a.filter(v=>v.status==="new").length;if(o)o.textContent=this.a.filter(v=>v.status==="old").length}
+applyVocabularyFilters(){this.activeSectionFilter=document.getElementById("browserSectionFilter")?.value||"new";this.activeTypeFilter=document.getElementById("browserTypeFilter")?.value||"all";this.renderWords()}
+showFilteredVocabulary(){this.openVocabularyBrowser()}
+people(){return [["i","I"],["youS","you (Singular)"],["he","he"],["she","she"],["it","it"],["we","we"],["youP","you (Plural)"],["they","they"]]}
+detailConj(v){if(v.conjugations?.present)return v.conjugations;let a=(v.present||"").split(/\s*\/\s*/),base=a[0]||"",third=a[1]||base,p=v.past||"",f=v.future||"";let pr={i:base,youS:base,he:third,she:third,it:third,we:base,youP:base,they:base},pa={},fu={};this.people().forEach(([k])=>{pa[k]=p;fu[k]=f});return{present:pr,past:pa,future:fu}}
+openVerbEdit2(id){let v=this.a.find(x=>String(x.id)===String(id));if(!v)return;veId.value=v.id;veEn.value=v.en||"";veDe.value=v.meanings?.[0]||v.de||"";veExEn.value=v.exampleEn||"";veExDe.value=v.exampleDe||"";veNotes.value=v.notes||"";let c=this.detailConj(v),sec=(t,p,d)=>`<div class="veT"><h3>${t}</h3><div class="veG">${this.people().map(([k,l])=>`<label>${l}</label><input id="ve_${p}_${k}" value="${this.esc(d?.[k]||"")}">`).join("")}</div></div>`;veConj.innerHTML=sec("Present","present",c.present)+sec("Simple Past","past",c.past)+`<div class="veT"><h3>Past Participle</h3><input id="ve_part" value="${this.esc(v.participle||"")}"></div>`+sec("Future","future",c.future);verbEditV2.classList.remove("hidden")}
+closeVerbEdit2(){verbEditV2.classList.add("hidden")}
+saveVerbEdit2(){let v=this.a.find(x=>String(x.id)===String(veId.value));if(!v)return;v.en=veEn.value.trim();v.de=veDe.value.trim();if(v.meanings?.length)v.meanings[0]=v.de;else v.meanings=[v.de];v.exampleEn=veExEn.value.trim();v.exampleDe=veExDe.value.trim();v.notes=veNotes.value.trim();let rd=p=>{let o={};this.people().forEach(([k])=>o[k]=(document.getElementById("ve_"+p+"_"+k)?.value||"").trim());return o};v.conjugations={present:rd("present"),past:rd("past"),future:rd("future")};v.participle=(document.getElementById("ve_part")?.value||"").trim();v.wordType="verb";this.s.save(this.a);this.closeVerbEdit2();this.render();this.renderWords();alert("✓ Änderungen gespeichert.")}
+fullVerb2(v){const wt=String(v.wordType||"").trim().toLowerCase();if(!["verb","verben"].includes(wt))return "";
+ 
+ const people=this.people();
+ let c=v.conjugations||{};
+ let pr=c.present||{},pa=c.past||{},fu=c.future||{};
+
+ // If detailed fields are absent, rebuild them from the old compact fields.
+ const has=d=>d&&people.some(([k])=>(d[k]||"").trim());
+ if(!has(pr)){
+   let raw=(v.present||"").trim(),parts=raw.split(/\s*\/\s*/);
+   let base=(parts[0]||v.en||"").trim(),third=(parts[1]||"").trim();
+   if(!third){
+     // derive regular 3rd-person singular when only the infinitive is stored
+     if(/[^aeiou]y$/i.test(base))third=base.slice(0,-1)+"ies";
+     else if(/(s|sh|ch|x|z|o)$/i.test(base))third=base+"es";
+     else third=base+"s";
+   }
+   pr={i:base,youS:base,he:third,she:third,it:third,we:base,youP:base,they:base};
+ }
+ if(!has(pa)){
+   let p=(v.past||"").trim();
+   if(!p&&v.participle)p=v.participle;
+   pa={};people.forEach(([k])=>pa[k]=p);
+ }
+ if(!has(fu)){
+   let f=(v.future||"").trim();
+   if(!f){
+     let base=(pr.i||v.en||"").trim();
+     f=base?"will "+base:"";
+   }
+   fu={};people.forEach(([k])=>fu[k]=f);
+ }
+ const sec=(title,data)=>`<div style="margin-top:18px"><h4 style="margin:0 0 9px">${title}</h4><div class="vfG">${people.map(([k,l])=>`<div class="mut">${l}</div><div><b>${this.esc(data[k]||"—")}</b></div>`).join("")}</div></div>`;
+ return `<div class="vfAll"><h3>🔤 Alle Verbformen & Konjugationen</h3>${sec("Present",pr)}${sec("Simple Past",pa)}<div style="margin-top:18px"><h4 style="margin:0 0 9px">Past Participle</h4><b>${this.esc(v.participle||v.past||"—")}</b></div>${sec("Future",fu)}</div>`;
+}
+renderWords(){let box=document.getElementById("filteredWords");if(!box)return;let sf=this.activeSectionFilter||"new",tf=this.activeTypeFilter||"all";let items=this.a.filter(v=>(sf==="all"||v.status===sf)&&(tf==="all"||v.wordType===tf));let title=document.getElementById("vocabResultTitle");if(title)title.textContent=(sf==="new"?"🆕 Neuer Lernabschnitt":sf==="old"?"📚 Alter Lernabschnitt":"📚 Alle Vokabeln")+(tf!=="all"?" · "+this.typeLabel(tf):"");box.innerHTML=items.length?items.map(v=>`<div class="item"><div onclick="app.openDetail('${v.id}')" style="cursor:pointer"><b>${this.esc(v.en)}</b> – ${(v.meanings&&v.meanings.length?v.meanings:[v.de]).map(x=>this.esc(x)).join(" / ")}<div class="mut">${this.typeLabel(v.wordType)} · ${v.status==="new"?"🆕 Neu":"📚 Alt"} · 😊 ${v.right} · 😢 ${v.wrong}</div></div><div><button class="secondary" onclick="app.openVerbEdit2('${v.id}')">✏️ Bearbeiten</button> <button class="danger" onclick="app.deleteVocabularyById('${v.id}');return false;">🗑️ Löschen</button></div></div>`).join(""):'<p class="mut">Keine Vokabeln für diese Auswahl.</p>'}
+openDetail(id){let v=this.a.find(x=>String(x.id)===String(id));if(!v)return;let verb=v.wordType==="verb"&&(v.present||v.past||v.participle||v.future)?`<div style="margin-top:18px;padding:16px;background:#f8fafc;border-radius:14px"><h3 style="margin-top:0">🔤 Verbformen</h3>${v.present?`<p><b>Present:</b> ${this.esc(v.present)}</p>`:""}${v.past?`<p><b>Simple Past:</b> ${this.esc(v.past)}</p>`:""}${v.participle?`<p><b>Past Participle:</b> ${this.esc(v.participle)}</p>`:""}${v.future?`<p><b>Future:</b> ${this.esc(v.future)}</p>`:""}</div>`:"";detailContent.innerHTML=`<div style="text-align:center"><div style="font-size:38px;font-weight:800">${this.esc(v.en)}</div><div style="font-size:24px;margin-top:5px">${(v.meanings&&v.meanings.length?v.meanings:[v.de]).map((x,i)=>this.esc(x)+(v.wordType==="noun"&&v.plurals&&v.plurals[i]?` <span class="mut">(Plural: ${this.esc(v.plurals[i])})</span>`:"")).join("<br>")}</div><div class="mut" style="margin-top:8px">${this.typeLabel(v.wordType)}${v.wordType==="noun"&&v.article?` · Artikel: <b>${this.esc(v.article)}</b>`:""}</div></div>${v.img?`<img src="${v.img}" class="pic" style="margin-top:18px">`:""}${v.exampleEn||v.exampleDe?`<div style="margin-top:18px;padding:16px;background:#eff6ff;border-radius:14px"><h3 style="margin-top:0">💬 Beispielsätze</h3>${v.exampleEn?`<p><b>Englisch:</b> ${this.esc(v.exampleEn)}</p>`:""}${v.exampleDe?`<p><b>Deutsch:</b> ${this.esc(v.exampleDe)}</p>`:""}</div>`:""}${verb}${v.notes?`<div style="margin-top:18px;padding:16px;background:#ecfeff;border-left:5px solid #14b8a6;border-radius:14px"><h3 style="margin-top:0">📝 Notizen / Besonderheiten</h3><div style="white-space:pre-wrap">${this.esc(v.notes)}</div></div>`:""}<div style="margin-top:18px;padding:16px;background:#f8fafc;border-radius:14px"><h3 style="margin-top:0">📊 Lernstand</h3><p><b>Lernstufe:</b> ${v.level}/5</p><p>😊 <b>Richtig:</b> ${v.right}</p><p>😢 <b>Falsch:</b> ${v.wrong}</p></div><div class="row" style="margin-top:18px"><button class="secondary" onclick="app.closeDetail();app.openEdit('${v.id}')">✏️ Bearbeiten</button><button type="button" class="danger" onclick="app.deleteVocabularyById('${v.id}');return false;">🗑️ Löschen</button></div>`;detailModal.classList.remove("hidden")}
+closeDetail(){detailModal.classList.add("hidden")}
+addEditMeaningField(value="",plural=""){
+ const box=document.getElementById("editExtraMeanings");if(!box)return;
+ const row=document.createElement("div");row.className="meaningRow";row.style.alignItems="flex-end";
+ const mw=document.createElement("div");mw.style.flex="1";const ml=document.createElement("label");ml.textContent="Weitere deutsche Bedeutung";const input=document.createElement("input");input.type="text";input.className="editExtraMeaning";input.value=value;mw.append(ml,input);
+ const pw=document.createElement("div");pw.className="editExtraPluralWrap";pw.style.flex="1";const pl=document.createElement("label");pl.textContent="Plural zu dieser Bedeutung";const pi=document.createElement("input");pi.type="text";pi.className="editExtraPlural";pi.value=plural;pw.append(pl,pi);
+ if(document.getElementById("editType")?.value!=="noun")pw.classList.add("hidden");
+ const del=document.createElement("button");del.type="button";del.className="danger";del.textContent="✕";del.onclick=()=>row.remove();
+ row.append(mw,pw,del);box.appendChild(row);
+}
+updateEditPluralVisibility(){
+ const noun=document.getElementById("editType")?.value==="noun";
+ document.getElementById("editPrimaryPluralBox")?.classList.toggle("hidden",!noun);
+ document.querySelectorAll(".editExtraPluralWrap").forEach(x=>x.classList.toggle("hidden",!noun));
+}
+openEdit(id){let v=this.a.find(x=>x.id===id);if(!v)return;editId.value=v.id;editEn.value=v.en;editDe.value=(v.meanings&&v.meanings.length?v.meanings[0]:v.de);editPrimaryPlural.value=(v.plurals&&v.plurals[0])||"";editExtraMeanings.innerHTML="";(v.meanings&&v.meanings.length?v.meanings.slice(1):[]).forEach((x,i)=>this.addEditMeaningField(x,(v.plurals&&v.plurals[i+1])||""));this.updateEditPluralVisibility();editType.value=v.wordType||"";editExampleEn.value=v.exampleEn||"";editExampleDe.value=v.exampleDe||"";editPresent.value=v.present||"";editPast.value=v.past||"";editParticiple.value=v.participle||"";editFuture.value=v.future||"";editNotes.value=v.notes||"";editArticle.value=v.article||"";editNounFields.classList.toggle("hidden",editType.value!=="noun");editVerb.classList.toggle("hidden",editType.value!=="verb");editArticle.value=v.article||"";this.toggleEditWordType();editModal.classList.remove("hidden")}
+toggleEditWordType(){editVerb.classList.toggle("hidden",editType.value!=="verb");editNounFields.classList.toggle("hidden",editType.value!=="noun")}
+toggleEditVerb(){this.toggleEditWordType()}
+closeEdit(){editModal.classList.add("hidden")}
+saveEdit(){let v=this.a.find(x=>x.id===editId.value);if(!v)return;if(!editEn.value.trim()||!editDe.value.trim())return alert("Englisch und Deutsch ausfüllen.");v.en=editEn.value.trim();let em=[editDe.value.trim(),...Array.from(document.querySelectorAll("#editExtraMeanings .editExtraMeaning")).map(x=>x.value.trim())];em=[...new Set(em.filter(Boolean))];v.meanings=em;v.de=em[0]||"";let nounPlural=editType.value==="noun";v.plurals=[nounPlural?editPrimaryPlural.value.trim():"",...Array.from(document.querySelectorAll("#editExtraMeanings .editExtraPlural")).map(x=>nounPlural?x.value.trim():"")].slice(0,em.length);v.wordType=editType.value;v.article=v.wordType==="noun"?editArticle.value.trim():"";v.exampleEn=editExampleEn.value.trim();v.exampleDe=editExampleDe.value.trim();v.notes=(document.getElementById("editNotes")?.value||"").trim();v.article=v.wordType==="noun"?editArticle.value.trim():"";if(v.wordType==="verb"){v.present=editPresent.value.trim();v.past=editPast.value.trim();v.participle=editParticiple.value.trim();v.future=editFuture.value.trim()}else{v.present=v.past=v.participle=v.future=""}this.s.save(this.a);this.closeEdit();this.queue=[];this.render();this.renderWords()}
+render(){this.updateBrowserCounts?.();let hn=document.getElementById("homeNewCount"),ho=document.getElementById("homeOldCount");if(hn)hn.textContent=this.a.filter(v=>v.status==="new").length;if(ho)ho.textContent=this.a.filter(v=>v.status==="old").length;list.innerHTML=this.a.length?this.a.map(v=>`<div class="item"><div><b>${this.esc(v.en)}</b> – ${this.esc(v.de)}<div class="mut">Stufe ${v.level}/5 · 😊 ${v.right} · 😢 ${v.wrong}</div></div><button type="button" class="danger" onclick="app.deleteVocabularyById('${v.id}');return false;">Löschen</button></div>`).join(""):'<p class="mut">Noch keine Vokabeln.</p>';let r=this.a.reduce((s,v)=>s+v.right,0),w=this.a.reduce((s,v)=>s+v.wrong,0),t=r+w;sa.textContent=this.a.length;sr.textContent=r;sw.textContent=w;sp.textContent=(t?Math.round(r/t*100):0)+"%";sl.textContent=this.a.length?(this.a.reduce((s,v)=>s+v.level,0)/this.a.length).toFixed(1):0}
+
+exportRows(){
+ const label=t=>({noun:"Nomen (Substantive)",verb:"Verben",adjective:"Adjektive",pronoun:"Pronomen",adverb:"Adverbien",preposition:"Präpositionen",conjunction:"Konjunktionen",numeral:"Numeralien",interjection:"Interjektionen"})[t]||"";
+ return this.a.map(v=>({
+   "Englisch":v.en||"",
+   "Deutsch":v.de||"",
+   "Weitere Bedeutungen":(v.meanings&&v.meanings.length>1?v.meanings.slice(1).join(" | "):""),
+   "Pluralformen":(v.wordType==="noun"&&v.plurals?v.plurals.join(" | "):""),
+   "Lernabschnitt":v.status==="new"?"Neu":"Alt",
+   "Wortart":label(v.wordType),
+   "Notizen / Besonderheiten":v.notes||"",
+   "Artikel":v.article||"",
+   "Beispiel Englisch":v.exampleEn||"",
+   "Beispiel Deutsch":v.exampleDe||"",
+   "Present":v.present||"",
+   "Simple Past":v.past||"",
+   "Past Participle":v.participle||"",
+   "Future":v.future||"",
+   "Lernstufe":v.level||1,
+   "Richtig":v.right||0,
+   "Falsch":v.wrong||0
+ }));
+}
+downloadBlob(blob,name){
+ const a=document.createElement("a");
+ a.href=URL.createObjectURL(blob);
+ a.download=name;
+ document.body.appendChild(a);
+ a.click();
+ setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
+}
+exportCSV(){
+ if(!this.a.length){alert("Es sind noch keine Vokabeln zum Exportieren vorhanden.");return}
+ const rows=this.exportRows(),headers=Object.keys(rows[0]);
+ const esc=x=>'"'+String(x??"").replace(/"/g,'""')+'"';
+ const csvText="\uFEFF"+headers.map(esc).join(";")+"\r\n"+rows.map(r=>headers.map(h=>esc(r[h])).join(";")).join("\r\n");
+ this.downloadBlob(new Blob([csvText],{type:"text/csv;charset=utf-8"}),"englisch_vokabeln.csv");
+ const m=document.getElementById("exportMsg");if(m)m.textContent="✓ CSV-Datei wurde erstellt.";
+}
+async exportExcel(){
+ if(!this.a.length){alert("Es sind noch keine Vokabeln zum Exportieren vorhanden.");return}
+ try{
+   if(typeof XLSX==="undefined"){
+     await new Promise((resolve,reject)=>{
+       const sc=document.createElement("script");
+       sc.src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js";
+       sc.onload=resolve;sc.onerror=reject;document.head.appendChild(sc);
+     });
+   }
+   const rows=this.exportRows();
+   const ws=XLSX.utils.json_to_sheet(rows);
+   ws["!cols"]=[{wch:22},{wch:22},{wch:20},{wch:38},{wch:38},{wch:24},{wch:24},{wch:24},{wch:24},{wch:12},{wch:10},{wch:10}];
+   const wb=XLSX.utils.book_new();
+   XLSX.utils.book_append_sheet(wb,ws,"Vokabeln");
+   XLSX.writeFile(wb,"englisch_vokabeln.xlsx");
+   const m=document.getElementById("exportMsg");if(m)m.textContent="✓ Excel-Datei wurde erstellt.";
+ }catch(e){
+   alert("Excel-Export konnte nicht geladen werden. Bitte Internetverbindung prüfen. CSV-Export funktioniert weiterhin.");
+ }
+}
+
+openSuccessChart(){successModal.classList.remove("hidden");this.successRange="week";this.renderSuccessChart()}
+closeSuccessChart(){successModal.classList.add("hidden")}
+setSuccessRange(range){this.successRange=range;this.renderSuccessChart()}
+successSeries(range){
+ const h=this.s.history().filter(x=>x&&x.date&&Number.isFinite(Number(x.rate))).map(x=>({...x,d:new Date(x.date)})).filter(x=>!isNaN(x.d));
+ const now=new Date(),start=new Date(now);
+ if(range==="week")start.setDate(now.getDate()-6);
+ else if(range==="month")start.setDate(now.getDate()-29);
+ else start.setFullYear(now.getFullYear()-1);
+ const filtered=h.filter(x=>x.d>=start&&x.d<=now);
+ const groups=new Map();
+ filtered.forEach(x=>{
+   let key,label;
+   if(range==="year"){
+     key=x.d.getFullYear()+"-"+String(x.d.getMonth()+1).padStart(2,"0");
+     label=x.d.toLocaleDateString("de-DE",{month:"short",year:"2-digit"});
+   }else{
+     key=x.d.toISOString().slice(0,10);
+     label=x.d.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"});
+   }
+   if(!groups.has(key))groups.set(key,{key,label,right:0,wrong:0,total:0});
+   const g=groups.get(key);g.right+=Number(x.right)||0;g.wrong+=Number(x.wrong)||0;g.total+=Number(x.total)||0;
+ });
+ return [...groups.values()].sort((a,b)=>a.key.localeCompare(b.key)).map(g=>({...g,rate:g.total?Math.round(g.right/g.total*100):0}));
+}
+renderSuccessChart(){
+ const range=this.successRange||"week";
+ ["week","month","year"].forEach(r=>{
+   const b=document.getElementById("success"+r[0].toUpperCase()+r.slice(1)+"Btn");
+   if(b)b.className=r===range?"primary":"secondary";
+ });
+ const data=this.successSeries(range);
+ const svg=document.getElementById("successChart");
+ const info=document.getElementById("successChartInfo");
+ if(!svg)return;
+ const label=range==="week"?"letzten 7 Tage":range==="month"?"letzten 30 Tage":"letzten 12 Monate";
+ info.textContent="Zeitraum: "+label+" · Y-Achse: Erfolgsquote in %";
+ if(!data.length){
+   svg.innerHTML='<text x="410" y="190" text-anchor="middle" fill="#64748b" font-size="18">Noch keine abgeschlossenen Lernrunden in diesem Zeitraum.</text>';
+   successPointInfo.innerHTML="";
+   return;
+ }
+ const W=820,H=390,L=62,R=25,T=25,B=62,iw=W-L-R,ih=H-T-B;
+ const y=v=>T+(100-v)*ih/100;
+ let out="";
+ [0,25,50,75,100].forEach(v=>{
+   const yy=y(v);
+   out+=`<line x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}" stroke="#e2e8f0"/>`;
+   out+=`<text x="${L-10}" y="${yy+5}" text-anchor="end" fill="#64748b" font-size="13">${v}%</text>`;
+ });
+ out+=`<line x1="${L}" y1="${T}" x2="${L}" y2="${H-B}" stroke="#94a3b8"/>`;
+ out+=`<line x1="${L}" y1="${H-B}" x2="${W-R}" y2="${H-B}" stroke="#94a3b8"/>`;
+
+ const slot=iw/data.length;
+ const barWidth=Math.max(12,Math.min(48,slot*0.62));
+ data.forEach((d,i)=>{
+   const cx=L+slot*i+slot/2;
+   const yy=y(d.rate);
+   const barH=(H-B)-yy;
+   const x=cx-barWidth/2;
+   out+=`<rect x="${x}" y="${yy}" width="${barWidth}" height="${Math.max(1,barH)}" rx="5" fill="#14b8a6" style="cursor:pointer" onclick="app.showSuccessPoint(${i})"><title>${d.label}: ${d.rate}%</title></rect>`;
+   out+=`<text x="${cx}" y="${Math.max(T+12,yy-7)}" text-anchor="middle" fill="#0f766e" font-size="12" font-weight="700">${d.rate}%</text>`;
+   if(data.length<=12||i%Math.ceil(data.length/10)===0){
+     out+=`<text x="${cx}" y="${H-B+24}" text-anchor="middle" fill="#64748b" font-size="12">${d.label}</text>`;
+   }
+ });
+ out+=`<text x="${L+iw/2}" y="${H-8}" text-anchor="middle" fill="#475569" font-size="14">Datum</text>`;
+ out+=`<text transform="translate(16 ${T+ih/2}) rotate(-90)" text-anchor="middle" fill="#475569" font-size="14">Erfolgsquote (%)</text>`;
+ svg.innerHTML=out;
+ this.successChartData=data;
+ successPointInfo.innerHTML="";
+}
+showSuccessPoint(i){const d=(this.successChartData||[])[i];if(!d)return;successPointInfo.innerHTML=`<div style="padding:12px;background:#f8fafc;border-radius:12px"><b>${d.label}</b> · Erfolgsquote <b>${d.rate}%</b> · 😊 ${d.right} richtig · 😢 ${d.wrong} falsch</div>`}
+detail(type){let a=type==="wrong"?this.a.filter(v=>v.wrong):type==="right"?this.a.filter(v=>v.right):this.a;detail.innerHTML="<h3>"+(type==="wrong"?"😢 Falsch beantwortete Vokabeln":type==="right"?"😊 Richtig beantwortete Vokabeln":"📚 Alle Vokabeln")+"</h3>"+(a.length?a.map(v=>`<div class="item"><div><b>${this.esc(v.en)}</b> – ${this.esc(v.de)}<div class="mut">Richtig ${v.right} · Falsch ${v.wrong}</div></div></div>`).join(""):"<p>Keine Einträge.</p>")+(type==="wrong"&&a.length?'<button class="primary" onclick="app.practiceWrong()">Diese Vokabeln üben</button>':"")}
+practiceWrong(){let a=this.a.filter(v=>v.wrong);this.open("learn");this.queue=this.shuffle([...a]);this.next(a)}
+newCard(){if(!this.a.length){this.card=null;ctext.textContent="Keine Vokabeln";return}this.card=this.a[Math.floor(Math.random()*this.a.length)];this.back=false;this.drawCard()}drawCard(){if(!this.card)return;if(!this.back){ctext.textContent=(this.card.meanings&&this.card.meanings.length?this.card.meanings:[this.card.de]).join(" / ");cside.textContent="Deutsch – zum Umdrehen klicken";cimg.classList.add("hidden")}else{ctext.textContent=(this.card.wordType==="noun"&&this.card.article?this.card.article+" ":"")+this.card.en;cside.textContent="Englisch";this.showImg(cimg,this.card.img)}}flip(){if(this.card){this.back=!this.back;this.drawCard()}}rate(ok){if(this.card){this.card.mark(ok);this.s.save(this.a);this.render();this.newCard()}}speakCard(){if(this.card)this.say(this.card.en)}
+showImg(el,src){if(src){el.src=src;el.classList.remove("hidden")}else el.classList.add("hidden")}esc(t){let d=document.createElement("div");d.textContent=t;return d.innerHTML}}
+const app=new App();addEventListener("DOMContentLoaded",()=>app.init());
+</script><script>
+if("serviceWorker" in navigator){
+ window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(()=>{}));
+}
+</script><div id="verbEditV2" class="modal hidden"><div class="modalbox">
+<h2>✏️ Vokabel & Konjugation bearbeiten</h2><input type="hidden" id="veId">
+<label>Englisch</label><input id="veEn"><label>Deutsch</label><input id="veDe">
+<label>Beispielsatz Englisch</label><input id="veExEn"><label>Beispielsatz Deutsch</label><input id="veExDe">
+<label>Notizen</label><textarea id="veNotes"></textarea><div id="veConj"></div>
+<div class="row"><button type="button" class="primary" onclick="app.saveVerbEdit2()">💾 Speichern</button><button type="button" class="secondary" onclick="app.closeVerbEdit2()">Abbrechen</button></div>
+</div></div></body></html>
